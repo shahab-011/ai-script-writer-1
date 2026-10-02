@@ -14,7 +14,10 @@ logger = logging.getLogger(__name__)
 api = FastAPI(title="Scriptflow API", version="1.0.0")
 cors_origins = [
     origin.strip().rstrip("/")
-    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174",
+    ).split(",")
     if origin.strip()
 ]
 api.add_middleware(
