@@ -24,14 +24,20 @@ function App() {
 
   async function generate() {
     if (input.trim().length < 8) { setError('Add a little more context so the pipeline has something to work with.'); return; }
-    if (!apiBaseUrl) { setError('The API URL is not configured. Add VITE_API_URL in your Vercel project settings and redeploy.'); return; }
+    if (!apiBaseUrl) { setError('The API URL is not configured. Add VITE_API_URL in your Netlify site settings and redeploy.'); return; }
     setLoading(true); setError(''); setResult(null);
     try {
       const response = await fetch(`${apiBaseUrl}/api/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ raw_input: input.trim() }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Something went wrong. Check that the API is running.');
       setResult(data); setActiveTab('final_output');
-    } catch (err) { setError(err.message.includes('fetch') ? 'Could not reach the API. Start the Python backend, then try again.' : err.message); }
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setError(`Could not connect to the API at ${apiBaseUrl}. Check that this address opens at /api/health, then check the browser console for the exact network or CORS error.`);
+      } else {
+        setError(err.message);
+      }
+    }
     finally { setLoading(false); }
   }
 
